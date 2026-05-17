@@ -1,0 +1,259 @@
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: var(--font-sans); color: var(--color-text-primary); }
+.tabs { display: flex; gap: 8px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.tab { padding: 8px 18px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); font-size: 14px; font-weight: 500; cursor: pointer; background: var(--color-background-primary); color: var(--color-text-secondary); transition: all 0.15s; }
+.tab.active { background: var(--color-background-info); color: var(--color-text-info); border-color: transparent; }
+.section { display: none; }
+.section.active { display: block; }
+.phase-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 1rem; }
+.phase-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.phase-badge { font-size: 11px; font-weight: 500; padding: 3px 10px; border-radius: 20px; background: var(--color-background-info); color: var(--color-text-info); }
+.phase-badge.p2 { background: var(--color-background-success); color: var(--color-text-success); }
+.day-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
+.day-box { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px; }
+.day-label { font-size: 11px; color: var(--color-text-secondary); margin-bottom: 4px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; }
+.day-focus { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 6px; }
+.day-rest { color: var(--color-text-tertiary); font-style: italic; font-size: 13px; }
+.ex-list { list-style: none; }
+.ex-list li { font-size: 12px; color: var(--color-text-secondary); padding: 2px 0; display: flex; align-items: flex-start; gap: 5px; }
+.ex-list li::before { content: "·"; color: var(--color-text-tertiary); flex-shrink: 0; margin-top: 1px; }
+.workout-selector { display: flex; gap: 8px; margin-bottom: 1rem; flex-wrap: wrap; }
+.wday-btn { padding: 6px 14px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); font-size: 13px; cursor: pointer; background: var(--color-background-primary); color: var(--color-text-secondary); }
+.wday-btn.active { background: var(--color-background-info); color: var(--color-text-info); border-color: transparent; }
+.detail-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; }
+.exercise-row { display: grid; grid-template-columns: 1fr auto auto auto; gap: 8px; align-items: center; padding: 10px 0; border-bottom: 0.5px solid var(--color-border-tertiary); }
+.exercise-row:last-child { border-bottom: none; }
+.ex-name { font-size: 14px; font-weight: 500; }
+.ex-muscles { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; }
+.pill { font-size: 11px; padding: 3px 8px; border-radius: 20px; font-weight: 500; white-space: nowrap; }
+.sets-pill { background: var(--color-background-secondary); color: var(--color-text-secondary); }
+.reps-pill { background: var(--color-background-info); color: var(--color-text-info); }
+.rest-pill { background: var(--color-background-warning); color: var(--color-text-warning); }
+.meal-card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1rem 1.25rem; margin-bottom: 1rem; }
+.meal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.meal-title { font-size: 15px; font-weight: 500; }
+.cal-badge { font-size: 12px; font-weight: 500; padding: 3px 10px; border-radius: 20px; background: var(--color-background-success); color: var(--color-text-success); }
+.macro-row { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
+.macro-chip { font-size: 12px; padding: 3px 10px; border-radius: 20px; background: var(--color-background-secondary); color: var(--color-text-secondary); }
+.food-list { font-size: 13px; color: var(--color-text-secondary); line-height: 1.7; }
+.total-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 1.5rem; }
+.total-chip { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 10px; text-align: center; }
+.total-num { font-size: 20px; font-weight: 500; color: var(--color-text-primary); }
+.total-lbl { font-size: 11px; color: var(--color-text-secondary); margin-top: 2px; }
+.tip-box { background: var(--color-background-secondary); border-radius: var(--border-radius-md); padding: 12px 14px; margin-top: 1rem; font-size: 13px; color: var(--color-text-secondary); line-height: 1.6; border-left: 2px solid #378ADD; border-top-left-radius: 0; border-bottom-left-radius: 0; }
+.progress-bar-wrap { background: var(--color-background-secondary); border-radius: 20px; height: 6px; margin-top: 6px; overflow: hidden; }
+.progress-bar-fill { height: 100%; border-radius: 20px; }
+h3 { font-size: 16px; font-weight: 500; margin-bottom: 12px; }
+</style>
+
+<div style="padding: 1rem 0;">
+<h2 class="sr-only">8-week actor physique training and nutrition plan with daily workouts and meal planning</h2>
+
+<div class="tabs">
+  <button class="tab active" onclick="showSection('overview')">Program overview</button>
+  <button class="tab" onclick="showSection('workouts')">Daily workouts</button>
+  <button class="tab" onclick="showSection('meals')">Meal plan</button>
+  <button class="tab" onclick="showSection('tips')">Pro tips</button>
+</div>
+
+<div id="overview" class="section active">
+  <div class="phase-card">
+    <div class="phase-header">
+      <span class="phase-badge">Phase 1 · Weeks 1–4</span>
+      <span style="font-size:14px;font-weight:500;">Foundation & hypertrophy</span>
+    </div>
+    <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:14px;">Build the base. High volume, shorter rest. Your body learns the movements and starts growing.</div>
+    <div class="day-grid">
+      <div class="day-box"><div class="day-label">Mon</div><div class="day-focus">Chest & triceps</div><ul class="ex-list"><li>Push-up variations</li><li>Tricep dips</li><li>Decline push-ups</li></ul></div>
+      <div class="day-box"><div class="day-label">Tue</div><div class="day-focus">Back & biceps</div><ul class="ex-list"><li>Pull-ups / rows</li><li>Superman holds</li><li>Chin-ups</li></ul></div>
+      <div class="day-box"><div class="day-label">Wed</div><div class="day-focus">Shoulders & core</div><ul class="ex-list"><li>Pike push-ups</li><li>Plank variations</li><li>Lateral raises</li></ul></div>
+      <div class="day-box"><div class="day-label">Thu</div><div class="day-focus">Lower body</div><ul class="ex-list"><li>Squats</li><li>Lunges</li><li>Glute bridges</li></ul></div>
+      <div class="day-box"><div class="day-label">Fri</div><div class="day-focus">Full body + abs</div><ul class="ex-list"><li>Burpees</li><li>Mountain climbers</li><li>V-sit crunches</li></ul></div>
+      <div class="day-box"><div class="day-label">Sat</div><div class="day-focus">Active recovery</div><ul class="ex-list"><li>Stretching</li><li>Light walk/yoga</li><li>Foam rolling</li></ul></div>
+      <div class="day-box"><div class="day-label">Sun</div><div class="day-focus day-rest">Complete rest</div></div>
+    </div>
+  </div>
+
+  <div class="phase-card">
+    <div class="phase-header">
+      <span class="phase-badge p2">Phase 2 · Weeks 5–8</span>
+      <span style="font-size:14px;font-weight:500;">Intensification & definition</span>
+    </div>
+    <div style="font-size:13px;color:var(--color-text-secondary);margin-bottom:14px;">Harder variations, supersets, reduced rest. This is where the V-shape carves out.</div>
+    <div class="day-grid">
+      <div class="day-box"><div class="day-label">Mon</div><div class="day-focus">Chest & triceps+</div><ul class="ex-list"><li>Archer push-ups</li><li>Diamond + wide</li><li>Ring dips equiv</li></ul></div>
+      <div class="day-box"><div class="day-label">Tue</div><div class="day-focus">Back & lats+</div><ul class="ex-list"><li>Wide pull-ups</li><li>Inverted rows</li><li>Scapular pulls</li></ul></div>
+      <div class="day-box"><div class="day-label">Wed</div><div class="day-focus">Shoulders+</div><ul class="ex-list"><li>Handstand work</li><li>Hindu push-ups</li><li>Core supersets</li></ul></div>
+      <div class="day-box"><div class="day-label">Thu</div><div class="day-focus">Lower + power</div><ul class="ex-list"><li>Jump squats</li><li>Pistol squats</li><li>Box jumps</li></ul></div>
+      <div class="day-box"><div class="day-label">Fri</div><div class="day-focus">HIIT + abs</div><ul class="ex-list"><li>Tabata circuits</li><li>Dragon flags</li><li>L-sits</li></ul></div>
+      <div class="day-box"><div class="day-label">Sat</div><div class="day-focus">Active recovery</div><ul class="ex-list"><li>Mobility work</li><li>Light cardio</li><li>Contrast bath</li></ul></div>
+      <div class="day-box"><div class="day-label">Sun</div><div class="day-focus day-rest">Complete rest</div></div>
+    </div>
+  </div>
+</div>
+
+<div id="workouts" class="section">
+  <div class="workout-selector">
+    <button class="wday-btn active" onclick="showDay('chest')">Mon · Chest</button>
+    <button class="wday-btn" onclick="showDay('back')">Tue · Back</button>
+    <button class="wday-btn" onclick="showDay('shoulders')">Wed · Shoulders</button>
+    <button class="wday-btn" onclick="showDay('lower')">Thu · Lower</button>
+    <button class="wday-btn" onclick="showDay('fullbody')">Fri · Full body</button>
+  </div>
+
+  <div id="day-chest" class="detail-card">
+    <h3>Chest & triceps</h3>
+    <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:14px;">Phase 1: 3 sets · 60s rest · Phase 2: 4 sets · 30–45s rest</div>
+    <div class="exercise-row"><div><div class="ex-name">Wide push-ups</div><div class="ex-muscles">Outer chest, front delt</div></div><span class="pill sets-pill">4 sets</span><span class="pill reps-pill">12–15 reps</span><span class="pill rest-pill">60s</span></div>
+    <div class="exercise-row"><div><div class="ex-name">Diamond push-ups</div><div class="ex-muscles">Triceps, inner chest</div></div><span class="pill sets-pill">4 sets</span><span class="pill reps-pill">10–12 reps</span><span class="pill rest-pill">60s</span></div>
+    <div class="exercise-row"><div><div class="ex-name">Decline push-ups</div><div class="ex-muscles">Upper chest, front delt</div></div><span class="pill sets-pill">3 sets</span><span class="pill reps-pill">12 reps</span><span class="pill rest-pill">60s</span></div>
+    <div class="exercise-row"><div><div class="ex-name">Tricep dips (chair)</div><div class="ex-muscles">Triceps long head</div></div><span class="pill sets-pill">3 sets</span><span class="pill reps-pill">15 reps</span><span class="pill rest-pill">60s</span></div>
+    <div class="exercise-row"><div><div class="ex-name">Archer push-ups</div><div class="ex-muscles">Chest isolation, stability</div></div><span class="pill sets-pill">3 sets</span><span class="pill reps-pill">8 each side</span><span class="pill rest-pill">90s</span></div>
+    <div class="exercise-row"><div><div class="ex-name">Push-up hold (bottom)</div><div class="ex-muscles">Time under tension, chest</div></div><span class="pill sets-pill">3 sets</span><span class="pill reps-pill">30s hold</span><span class="pill rest-pill">60s</span></div>
+  </div>
+
+  <div id="day-back" class="detail-card" style="display:none">
+    <h3>Back & biceps — V-taper builders</h3>
+    <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:14px;">This is your most important session for the V-shape. Wide lats = width at top.</div>
+    <div class="exercise-row"><div><div class="ex-name">Wide-grip pull-ups</div><div class="ex-muscles">Lats (width), rear delt</div></div><span class="pill sets-pill">4 sets</span><span class="pill reps-pill">max reps</span><span class="pill rest-pill">90s</span></div>
+    <div class="exercise-row"><div><div class="ex-name">Chin-ups</div><div class="ex-muscles">Lats, biceps</div></div><span class="pill sets-pill">3 sets</span><span class="pill reps-pill">max reps</span><span class="pill rest-pill">90s</span></div>
+    <div class="exercise-row"><div><div class="ex-name">Inverted rows (table)</div><div class="ex-muscles">Mid-back, rhomboids</div></div><span class="pill sets-pill">4 sets</span><span class="pill reps-pill">12–15 reps</span><span class="pill rest-pill">60s</span></div>
+    <div class="exercise-row"><div><div class="ex-name">Superman holds</div><div class="ex-muscles">Lower back, glutes</div></div><span class="pill sets-pill">3 sets</span><span class="pill reps-pill">15 reps · 3s hold</span><span class="pill rest-pill">45s</span></div>
+    <div class="exercise-row"><div><div class="ex-name">Scapular push-ups</div><div class="ex-muscles">Serratus, scapula control</div></div><span class="pill sets-pill">3 sets</span><span class="pill reps-pill">15 reps</span><span class="pill rest-pill">45s</span></div>
+    <div class="exercise-row"><div><div class="ex-name">Negative pull-ups</div><div class="ex-muscles">Lats, biceps eccentric</div></div><span class="pill sets-pill">3 sets</span><span class="pill reps-pill">5 reps · 5s lower</span><span class="pill rest-pill">90s</span></div>
+  </div>
+
+  <div id="day-shoulders" class="detail-card" style="display:none">
+    <h3>Shoulders & core</h3>
+    <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:14px;">Capped shoulders make the V-shape. Core strength = visible abs later.</div>
+    <div class="exercise-row"><div><div class="ex-name">Pike push-ups</div><div class="ex-muscles">Front & side delt</div></div><span class="pill sets-pill">4 sets</span><span class="pill reps-pill">12 reps</span><span class="pill rest-pill">60s</span></div>
+    <div class="exercise-row"><div><div class="ex-name">Handstand holds (wall)</div><div class="ex-muscles">Full shoulder, core</div></div><span class="pill sets-pill">3 sets</span><span class="pill reps-pill">20–30s</span><span class="pill rest-pill">90s</span></div>
+    <div class="exercise-row"><div><div class="ex-name">Hindu push-ups</div><div class="ex-muscles">Shoulders, triceps, chest</div></div><span class="pill sets-pill">3 sets</span><span class="pill reps-pill">10 reps</span><span class="pill rest-pill">60s</span></div>
+    <div class="exercise-row"><div><div class="ex-name">Plank (front + side)</div><div class="ex-muscles">Deep core, obliques</div></div><span class="pill sets-pill">3 sets each</span><span class="pill reps-pill">45s hold</span><span class="pill rest-pill">30s</span></div>
+    <div class="exercise-row"><div><div class="ex-name">Hollow body hold</div><div class="ex-muscles">Full anterior core</div></div><span class="pill sets-pill">3 sets</span><span class="pill reps-pill">30s</span><span class="pill rest-pill">45s</span></div>
+    <div class="exercise-row"><div><div class="ex-name">L-sit (between chairs)</div><div class="ex-muscles">Hip flexors, lower abs</div></div><span class="pill sets-pill">4 sets</span><span class="pill reps-pill">max hold</span><span class="pill rest-pill">60s</span></div>
+  </div>
+
+  <div id="day-lower" class="detail-card" style="display:none">
+    <h3>Lower body</h3>
+    <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:14px;">Strong legs trigger growth hormone. Don't skip — they'll accelerate your upper body results too.</div>
+    <div class="exercise-row"><div><div class="ex-name">Bulgarian split squats</div><div class="ex-muscles">Quads, glutes, balance</div></div><span class="pill sets-pill">4 sets</span><span class="pill reps-pill">12 each leg</span><span class="pill rest-pill">90s</span></div>
+    <div class="exercise-row"><div><div class="ex-name">Jump squats</div><div class="ex-muscles">Full leg, explosive power</div></div><span class="pill sets-pill">3 sets</span><span class="pill reps-pill">15 reps</span><span class="pill rest-pill">60s</span></div>
+    <div class="exercise-row"><div><div class="ex-name">Reverse lunges</div><div class="ex-muscles">Quads, hamstrings</div></div><span class="pill sets-pill">3 sets</span><span class="pill reps-pill">12 each leg</span><span class="pill rest-pill">60s</span></div>
+    <div class="exercise-row"><div><div class="ex-name">Single-leg glute bridge</div><div class="ex-muscles">Glutes, hamstrings</div></div><span class="pill sets-pill">3 sets</span><span class="pill reps-pill">15 each side</span><span class="pill rest-pill">45s</span></div>
+    <div class="exercise-row"><div><div class="ex-name">Wall sit</div><div class="ex-muscles">Quad endurance</div></div><span class="pill sets-pill">3 sets</span><span class="pill reps-pill">60s hold</span><span class="pill rest-pill">60s</span></div>
+    <div class="exercise-row"><div><div class="ex-name">Calf raises (single leg)</div><div class="ex-muscles">Gastrocnemius, soleus</div></div><span class="pill sets-pill">4 sets</span><span class="pill reps-pill">20 each</span><span class="pill rest-pill">30s</span></div>
+  </div>
+
+  <div id="day-fullbody" class="detail-card" style="display:none">
+    <h3>Full body + abs circuit</h3>
+    <div style="font-size:12px;color:var(--color-text-secondary);margin-bottom:14px;">3 rounds of this circuit with 90s between rounds. No rest between exercises in a round.</div>
+    <div class="exercise-row"><div><div class="ex-name">Burpees</div><div class="ex-muscles">Full body, cardio, core</div></div><span class="pill sets-pill">3 rounds</span><span class="pill reps-pill">10 reps</span><span class="pill rest-pill">no rest</span></div>
+    <div class="exercise-row"><div><div class="ex-name">Mountain climbers</div><div class="ex-muscles">Core, hip flexors, cardio</div></div><span class="pill sets-pill">3 rounds</span><span class="pill reps-pill">30 reps</span><span class="pill rest-pill">no rest</span></div>
+    <div class="exercise-row"><div><div class="ex-name">V-sit crunches</div><div class="ex-muscles">Upper + lower abs</div></div><span class="pill sets-pill">3 rounds</span><span class="pill reps-pill">20 reps</span><span class="pill rest-pill">no rest</span></div>
+    <div class="exercise-row"><div><div class="ex-name">Push-up to downward dog</div><div class="ex-muscles">Chest, shoulders, stretch</div></div><span class="pill sets-pill">3 rounds</span><span class="pill reps-pill">10 reps</span><span class="pill rest-pill">no rest</span></div>
+    <div class="exercise-row"><div><div class="ex-name">Bicycle crunches</div><div class="ex-muscles">Obliques, rectus abs</div></div><span class="pill sets-pill">3 rounds</span><span class="pill reps-pill">20 each side</span><span class="pill rest-pill">no rest</span></div>
+    <div class="exercise-row"><div><div class="ex-name">Dragon flags (progression)</div><div class="ex-muscles">Full core, hip flexors</div></div><span class="pill sets-pill">3 rounds</span><span class="pill reps-pill">8 reps</span><span class="pill rest-pill">90s after round</span></div>
+  </div>
+</div>
+
+<div id="meals" class="section">
+  <div class="total-bar">
+    <div class="total-chip"><div class="total-num">~3,000</div><div class="total-lbl">calories / day</div></div>
+    <div class="total-chip"><div class="total-num">200g</div><div class="total-lbl">protein / day</div></div>
+    <div class="total-chip"><div class="total-num">320g</div><div class="total-lbl">carbs / day</div></div>
+    <div class="total-chip"><div class="total-num">85g</div><div class="total-lbl">fats / day</div></div>
+  </div>
+
+  <div class="meal-card">
+    <div class="meal-header"><span class="meal-title">Meal 1 · 7am — Power breakfast</span><span class="cal-badge">650 kcal</span></div>
+    <div class="macro-row"><span class="macro-chip">50g protein</span><span class="macro-chip">60g carbs</span><span class="macro-chip">18g fat</span></div>
+    <div class="food-list">5 whole eggs scrambled · 2 slices whole-grain toast · 1 cup oatmeal with banana · Black coffee or green tea</div>
+  </div>
+
+  <div class="meal-card">
+    <div class="meal-header"><span class="meal-title">Meal 2 · 10am — Pre-workout fuel</span><span class="cal-badge">350 kcal</span></div>
+    <div class="macro-row"><span class="macro-chip">30g protein</span><span class="macro-chip">45g carbs</span><span class="macro-chip">6g fat</span></div>
+    <div class="food-list">1 cup Greek yogurt (0%) · 1 cup mixed berries · 1 tbsp honey · 1 scoop protein powder (optional)</div>
+  </div>
+
+  <div class="meal-card">
+    <div class="meal-header"><span class="meal-title">Meal 3 · 1pm — Post-workout recovery</span><span class="cal-badge">750 kcal</span></div>
+    <div class="macro-row"><span class="macro-chip">55g protein</span><span class="macro-chip">85g carbs</span><span class="macro-chip">20g fat</span></div>
+    <div class="food-list">200g chicken breast or canned tuna · 1.5 cups brown rice or sweet potato · Large mixed salad with olive oil · 1 avocado (half)</div>
+  </div>
+
+  <div class="meal-card">
+    <div class="meal-header"><span class="meal-title">Meal 4 · 4pm — Afternoon fuel</span><span class="cal-badge">400 kcal</span></div>
+    <div class="macro-row"><span class="macro-chip">35g protein</span><span class="macro-chip">40g carbs</span><span class="macro-chip">12g fat</span></div>
+    <div class="food-list">Cottage cheese (200g) · Apple or orange · 20 almonds or walnuts · Carrot sticks</div>
+  </div>
+
+  <div class="meal-card">
+    <div class="meal-header"><span class="meal-title">Meal 5 · 7pm — Dinner</span><span class="cal-badge">650 kcal</span></div>
+    <div class="macro-row"><span class="macro-chip">45g protein</span><span class="macro-chip">65g carbs</span><span class="macro-chip">18g fat</span></div>
+    <div class="food-list">200g salmon, tuna steak, or lean beef · 1 cup quinoa or lentils · Steamed broccoli + spinach · Olive oil drizzle</div>
+  </div>
+
+  <div class="meal-card">
+    <div class="meal-header"><span class="meal-title">Meal 6 · 9:30pm — Nighttime casein</span><span class="cal-badge">200 kcal</span></div>
+    <div class="macro-row"><span class="macro-chip">25g protein</span><span class="macro-chip">15g carbs</span><span class="macro-chip">5g fat</span></div>
+    <div class="food-list">200g cottage cheese or casein shake · Cinnamon · Small handful of blueberries</div>
+  </div>
+</div>
+
+<div id="tips" class="section">
+  <div class="phase-card">
+    <h3>V-shape formula</h3>
+    <div style="font-size:14px;color:var(--color-text-secondary);line-height:1.8;">The V-taper is about <strong>wide lats + capped shoulders + a narrow waist</strong>. Pull-ups are your single best friend. Do them every back day, and if you can't do them yet, start with negatives (jump up, lower slowly for 5 seconds) and inverted rows under a table.</div>
+    <div class="tip-box">Actor trick: I had a client gain a full shirt size in his lats in 6 weeks with negatives alone. Volume beats intensity early — get the reps in.</div>
+  </div>
+
+  <div class="phase-card">
+    <h3>The 30-min vs 1-hr rule</h3>
+    <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.8; margin-bottom: 10px;">
+      <strong>30 minutes:</strong> Do the full workout but cut sets to 3 and reduce rest to 45s. Keep the exercises exactly as listed.
+    </div>
+    <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.8;">
+      <strong>1 hour:</strong> Add a finisher — 3 min of push-up burnout or plank holds at the end of every session.
+    </div>
+  </div>
+
+  <div class="phase-card">
+    <h3>Supplements worth considering</h3>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; margin-top: 8px;">
+      <div class="day-box"><div class="day-focus" style="font-size:13px;">Creatine monohydrate</div><div style="font-size:12px;color:var(--color-text-secondary);margin-top:4px;">5g/day · most studied supplement for strength + muscle volume</div></div>
+      <div class="day-box"><div class="day-focus" style="font-size:13px;">Whey protein</div><div style="font-size:12px;color:var(--color-text-secondary);margin-top:4px;">Only if you can't hit 200g from food. Not magic.</div></div>
+      <div class="day-box"><div class="day-focus" style="font-size:13px;">Vitamin D3</div><div style="font-size:12px;color:var(--color-text-secondary);margin-top:4px;">2000 IU/day · supports testosterone and recovery</div></div>
+      <div class="day-box"><div class="day-focus" style="font-size:13px;">Magnesium glycinate</div><div style="font-size:12px;color:var(--color-text-secondary);margin-top:4px;">Before bed · improves sleep quality and muscle recovery</div></div>
+    </div>
+  </div>
+
+  <div class="phase-card">
+    <h3>Sleep & recovery</h3>
+    <div style="font-size:13px;color:var(--color-text-secondary);line-height:1.8;">Muscle is built during sleep, not during training. 8 hours minimum. Cold shower after training reduces inflammation. Aim for 10–15 min sun exposure daily for natural testosterone production. Alcohol directly suppresses protein synthesis — cut it out completely during these 8 weeks.</div>
+  </div>
+
+  <div style="margin-top:1rem; text-align:center;">
+    <button onclick="sendPrompt('Can you give me a week-by-week progression guide showing exactly how to increase reps and sets across the 8 weeks?')" style="padding: 10px 20px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); font-size: 14px; cursor: pointer; background: var(--color-background-primary); color: var(--color-text-secondary);">Get week-by-week progression guide ↗</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+function showDay(day) {
+  document.querySelectorAll('[id^="day-"]').forEach(d => d.style.display = 'none');
+  document.querySelectorAll('.wday-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('day-' + day).style.display = 'block';
+  event.target.classList.add('active');
+}
+</script>
