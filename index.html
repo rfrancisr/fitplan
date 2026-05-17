@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Actor Physique Program</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --black:#000;
+  --white:#fff;
+  --gray-50:#f5f5f7;
+  --gray-100:#e8e8ed;
+  --gray-200:#d2d2d7;
+  --gray-400:#86868b;
+  --gray-600:#515154;
+  --gray-800:#1d1d1f;
+  --serif:'Georgia',serif;
+  --sans:-apple-system,BlinkMacSystemFont,'SF Pro Display','Helvetica Neue',Arial,sans-serif;
+}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--black);color:var(--white);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+
+/* NAV */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  background:rgba(0,0,0,0.85);
+  backdrop-filter:saturate(180%) blur(20px);
+  -webkit-backdrop-filter:saturate(180%) blur(20px);
+  border-bottom:1px solid rgba(255,255,255,0.08);
+}
+.nav-inner{max-width:1080px;margin:0 auto;padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:52px}
+.nav-logo{font-size:17px;font-weight:500;letter-spacing:-0.02em;color:var(--white);text-decoration:none}
+.nav-links{display:flex;gap:2rem;list-style:none}
+.nav-links a{font-size:13px;color:rgba(255,255,255,0.6);text-decoration:none;letter-spacing:0.01em;transition:color 0.2s}
+.nav-links a:hover{color:var(--white)}
+
+/* HERO */
+.hero{
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;
+  padding:8rem 2rem 6rem;
+  background:var(--black);
+  position:relative;
+}
+.hero-eyebrow{
+  font-size:12px;letter-spacing:0.1em;text-transform:uppercase;
+  color:rgba(255,255,255,0.45);margin-bottom:1.5rem;
+}
+.hero h1{
+  font-size:clamp(2.8rem,7vw,6rem);
+  font-weight:600;letter-spacing:-0.04em;line-height:1.05;
+  color:var(--white);max-width:820px;margin:0 auto 1.5rem;
+}
+.hero h1 em{font-style:normal;color:rgba(255,255,255,0.45)}
+.hero-sub{
+  font-size:clamp(1rem,2vw,1.25rem);
+  color:rgba(255,255,255,0.55);
+  max-width:520px;margin:0 auto 3.5rem;
+  line-height:1.6;font-weight:400;
+}
+.stat-row{display:flex;gap:0;border:1px solid rgba(255,255,255,0.12)}
+.stat-item{
+  padding:1.25rem 2.5rem;
+  border-right:1px solid rgba(255,255,255,0.12);
+  text-align:center;
+}
+.stat-item:last-child{border-right:none}
+.stat-num{
+  font-size:2rem;font-weight:600;letter-spacing:-0.03em;
+  display:block;color:var(--white);
+}
+.stat-lbl{
+  font-size:11px;letter-spacing:0.06em;text-transform:uppercase;
+  color:rgba(255,255,255,0.4);display:block;margin-top:4px;
+}
+.scroll-hint{
+  position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);
+  font-size:12px;color:rgba(255,255,255,0.3);letter-spacing:0.08em;text-transform:uppercase;
+}
+
+/* ALTERNATING SECTIONS */
+.block{padding:8rem 2rem}
+.block-dark{background:var(--black);color:var(--white)}
+.block-light{background:var(--white);color:var(--black)}
+.block-gray{background:var(--gray-50);color:var(--black)}
+.block-inner{max-width:1080px;margin:0 auto}
+
+.overline{
+  font-size:11px;letter-spacing:0.1em;text-transform:uppercase;
+  margin-bottom:1rem;display:block;
+}
+.block-dark .overline{color:rgba(255,255,255,0.4)}
+.block-light .overline,.block-gray .overline{color:var(--gray-400)}
+
+.block-title{
+  font-size:clamp(2rem,4vw,3rem);font-weight:600;letter-spacing:-0.03em;
+  line-height:1.1;margin-bottom:1.5rem;
+}
+.block-body{
+  font-size:17px;line-height:1.65;max-width:580px;
+}
+.block-dark .block-body{color:rgba(255,255,255,0.55)}
+.block-light .block-body,.block-gray .block-body{color:var(--gray-600)}
+
+/* PHASE SPLIT */
+.phase-split{
+  display:grid;grid-template-columns:1fr 1fr;gap:1px;
+  background:rgba(255,255,255,0.1);margin-top:4rem;
+}
+.phase-cell{
+  background:var(--black);padding:3rem;
+  border:none;
+}
+.phase-num{
+  font-size:5rem;font-weight:700;letter-spacing:-0.05em;
+  color:rgba(255,255,255,0.08);line-height:1;margin-bottom:1rem;
+}
+.phase-title{font-size:1.25rem;font-weight:600;margin-bottom:0.25rem;color:var(--white)}
+.phase-period{font-size:13px;color:rgba(255,255,255,0.35);margin-bottom:1rem;letter-spacing:0.02em}
+.phase-desc{font-size:15px;color:rgba(255,255,255,0.5);line-height:1.6}
+
+/* WEEK SCHEDULE */
+.schedule-grid{
+  display:grid;grid-template-columns:repeat(7,1fr);
+  gap:1px;background:var(--gray-100);
+  margin-top:4rem;border:1px solid var(--gray-100);
+}
+.sched-day{background:var(--white);padding:1.5rem 1rem}
+.sched-day-name{
+  font-size:10px;letter-spacing:0.1em;text-transform:uppercase;
+  color:var(--gray-400);margin-bottom:0.75rem;
+}
+.sched-day-focus{font-size:14px;font-weight:600;margin-bottom:0.75rem;line-height:1.3;color:var(--gray-800)}
+.sched-day-focus.rest{color:var(--gray-200);font-weight:400}
+.sched-day ul{list-style:none}
+.sched-day ul li{font-size:12px;color:var(--gray-400);padding:2px 0 2px 12px;position:relative}
+.sched-day ul li::before{content:'·';position:absolute;left:0;color:var(--gray-200)}
+
+/* WORKOUT TABLES */
+.workout-block{margin-bottom:5rem}
+.workout-block:last-child{margin-bottom:0}
+.workout-label{
+  display:flex;align-items:baseline;gap:1rem;
+  margin-bottom:0.5rem;
+}
+.workout-day-tag{
+  font-size:11px;letter-spacing:0.08em;text-transform:uppercase;
+  color:var(--gray-400);
+}
+.workout-name{font-size:1.5rem;font-weight:600;letter-spacing:-0.02em;color:var(--gray-800)}
+.workout-note{font-size:13px;color:var(--gray-400);margin-bottom:1.5rem;margin-top:0.25rem}
+table{width:100%;border-collapse:collapse}
+thead tr{border-bottom:1px solid var(--gray-800)}
+th{
+  font-size:10px;letter-spacing:0.08em;text-transform:uppercase;
+  color:var(--gray-400);padding:0.5rem 1rem 0.75rem;
+  text-align:left;font-weight:400;
+}
+tbody tr{border-bottom:1px solid var(--gray-100)}
+tbody tr:last-child{border-bottom:none}
+td{padding:1rem;font-size:14px;vertical-align:middle;color:var(--gray-800)}
+td:first-child{font-weight:500}
+.td-sub{font-size:12px;color:var(--gray-400);margin-top:2px;font-weight:400}
+.tag{
+  display:inline-block;font-size:11px;padding:3px 10px;
+  background:var(--gray-100);color:var(--gray-600);
+  border-radius:20px;letter-spacing:0.02em;
+}
+
+/* MEAL PLAN */
+.macro-summary{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:1px;background:rgba(255,255,255,0.1);
+  margin-bottom:4rem;
+}
+.macro-cell{background:var(--black);padding:2rem 1.5rem}
+.macro-num{
+  font-size:2.5rem;font-weight:600;letter-spacing:-0.04em;
+  color:var(--white);display:block;margin-bottom:4px;
+}
+.macro-lbl{font-size:12px;letter-spacing:0.06em;text-transform:uppercase;color:rgba(255,255,255,0.4)}
+
+.meal-list{border-top:1px solid rgba(255,255,255,0.1)}
+.meal-row{
+  display:grid;grid-template-columns:100px 1fr 140px;
+  gap:2rem;padding:2rem 0;align-items:start;
+  border-bottom:1px solid rgba(255,255,255,0.08);
+}
+.meal-row:last-child{border-bottom:none}
+.meal-time{font-size:13px;color:rgba(255,255,255,0.3);padding-top:2px;letter-spacing:0.02em}
+.meal-name{font-size:17px;font-weight:500;margin-bottom:0.5rem;color:var(--white)}
+.meal-foods{font-size:14px;color:rgba(255,255,255,0.45);line-height:1.6}
+.meal-cal{font-size:1.5rem;font-weight:600;letter-spacing:-0.02em;color:var(--white);display:block;text-align:right}
+.meal-macros{font-size:12px;color:rgba(255,255,255,0.3);text-align:right;margin-top:4px}
+
+/* TIPS */
+.tips-grid{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:1px;background:var(--gray-100);margin-top:4rem;
+}
+.tip-cell{background:var(--white);padding:2.5rem 2rem}
+.tip-title{font-size:17px;font-weight:600;color:var(--gray-800);margin-bottom:0.75rem;letter-spacing:-0.01em}
+.tip-body{font-size:14px;color:var(--gray-600);line-height:1.7}
+.tip-body strong{color:var(--gray-800);font-weight:500}
+
+/* PULL QUOTE */
+.pull-quote{
+  text-align:center;padding:6rem 2rem;
+  background:var(--black);border-top:1px solid rgba(255,255,255,0.08);border-bottom:1px solid rgba(255,255,255,0.08);
+}
+.pull-quote p{
+  font-size:clamp(1.25rem,3vw,2rem);font-weight:500;
+  letter-spacing:-0.02em;line-height:1.4;
+  color:var(--white);max-width:700px;margin:0 auto;
+}
+.pull-quote p em{font-style:normal;color:rgba(255,255,255,0.4)}
+
+/* FOOTER */
+footer{
+  background:var(--gray-800);padding:3rem 2rem;
+  text-align:center;border-top:1px solid rgba(255,255,255,0.06);
+}
+.footer-inner{max-width:1080px;margin:0 auto}
+.footer-title{font-size:15px;font-weight:500;color:var(--white);margin-bottom:0.5rem}
+.footer-sub{font-size:13px;color:rgba(255,255,255,0.3)}
+
+/* DIVIDER */
+.divider{height:1px;background:rgba(255,255,255,0.08);border:none;margin:0}
+
+@media(max-width:768px){
+  .phase-split{grid-template-columns:1fr}
+  .schedule-grid{grid-template-columns:repeat(4,1fr)}
+  .macro-summary{grid-template-columns:repeat(2,1fr)}
+  .tips-grid{grid-template-columns:1fr}
+  .meal-row{grid-template-columns:1fr;gap:0.5rem}
+  .meal-cal,.meal-macros{text-align:left}
+  .stat-row{flex-direction:column}
+  .stat-item{border-right:none;border-bottom:1px solid rgba(255,255,255,0.12)}
+  .stat-item:last-child{border-bottom:none}
+  nav{padding:0 1rem}
+  .nav-links{display:none}
+  .block{padding:5rem 1.5rem}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">Actor Physique</a>
+    <ul class="nav-links">
+      <li><a href="#program">Program</a></li>
+      <li><a href="#workouts">Workouts</a></li>
+      <li><a href="#nutrition">Nutrition</a></li>
+      <li><a href="#tips">Tips</a></li>
+    </ul>
+  </div>
+</nav>
+
+<section class="hero">
+  <p class="hero-eyebrow">Bodyweight &nbsp;·&nbsp; No equipment &nbsp;·&nbsp; 8 weeks</p>
+  <h1>Build the body.<br><em>No gym required.</em></h1>
+  <p class="hero-sub">V-taper, defined chest, triceps, abs, and back. Thirty to sixty minutes a day. Starts now.</p>
+  <div class="stat-row">
+    <div class="stat-item"><span class="stat-num">8</span><span class="stat-lbl">Weeks</span></div>
+    <div class="stat-item"><span class="stat-num">5</span><span class="stat-lbl">Days / week</span></div>
+    <div class="stat-item"><span class="stat-num">3,000</span><span class="stat-lbl">Cal / day</span></div>
+    <div class="stat-item"><span class="stat-num">200g</span><span class="stat-lbl">Protein / day</span></div>
+  </div>
+  <p class="scroll-hint">Scroll to begin</p>
+</section>
+
+<hr class="divider">
+
+<!-- PROGRAM -->
+<section class="block block-dark" id="program">
+  <div class="block-inner">
+    <span class="overline">Structure</span>
+    <h2 class="block-title">Two phases.<br>One transformation.</h2>
+    <p class="block-body">The first four weeks build your base. The second four weeks carve the shape. Each phase demands more than the last.</p>
+
+    <div class="phase-split">
+      <div class="phase-cell">
+        <div class="phase-num">01</div>
+        <div class="phase-title">Foundation &amp; hypertrophy</div>
+        <div class="phase-period">Weeks 1–4</div>
+        <div class="phase-desc">High volume, 60s rest between sets. Your body learns the movements and starts growing. Form over everything.</div>
+      </div>
+      <div class="phase-cell" style="border-left:1px solid rgba(255,255,255,0.08)">
+        <div class="phase-num">02</div>
+        <div class="phase-title">Intensification &amp; definition</div>
+        <div class="phase-period">Weeks 5–8</div>
+        <div class="phase-desc">Harder variations, supersets, rest drops to 30–45s. This is where the V-shape emerges. Expect soreness to return.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr class="divider">
+
+<section class="block block-light">
+  <div class="block-inner">
+    <span class="overline">Weekly structure</span>
+    <h2 class="block-title" style="color:var(--gray-800)">Every week, five days on.</h2>
+
+    <div class="schedule-grid">
+      <div class="sched-day">
+        <div class="sched-day-name">Mon</div>
+        <div class="sched-day-focus">Chest &amp; triceps</div>
+        <ul><li>Push-up variations</li><li>Tricep dips</li><li>Decline push-ups</li></ul>
+      </div>
+      <div class="sched-day">
+        <div class="sched-day-name">Tue</div>
+        <div class="sched-day-focus">Back &amp; biceps</div>
+        <ul><li>Pull-ups / rows</li><li>Superman holds</li><li>Chin-ups</li></ul>
+      </div>
+      <div class="sched-day">
+        <div class="sched-day-name">Wed</div>
+        <div class="sched-day-focus">Shoulders &amp; core</div>
+        <ul><li>Pike push-ups</li><li>Plank variations</li><li>Hollow body</li></ul>
+      </div>
+      <div class="sched-day">
+        <div class="sched-day-name">Thu</div>
+        <div class="sched-day-focus">Lower body</div>
+        <ul><li>Bulgarian squats</li><li>Jump squats</li><li>Glute bridges</li></ul>
+      </div>
+      <div class="sched-day">
+        <div class="sched-day-name">Fri</div>
+        <div class="sched-day-focus">Full body + abs</div>
+        <ul><li>Burpees</li><li>Mountain climbers</li><li>V-sit crunches</li></ul>
+      </div>
+      <div class="sched-day">
+        <div class="sched-day-name">Sat</div>
+        <div class="sched-day-focus">Active recovery</div>
+        <ul><li>Stretching</li><li>Light walk</li><li>Foam rolling</li></ul>
+      </div>
+      <div class="sched-day">
+        <div class="sched-day-name">Sun</div>
+        <div class="sched-day-focus rest">Rest</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="pull-quote">
+  <p>Wide lats. Capped shoulders. Narrow waist. <em>That is the formula.</em> Pull-ups build two of the three.</p>
+</div>
+
+<!-- WORKOUTS -->
+<section class="block block-gray" id="workouts">
+  <div class="block-inner">
+    <span class="overline">Daily workouts</span>
+    <h2 class="block-title" style="color:var(--gray-800)">Every exercise. Every rep.</h2>
+
+    <div style="margin-top:4rem">
+
+      <div class="workout-block">
+        <div class="workout-label">
+          <span class="workout-day-tag">Monday</span>
+          <span class="workout-name">Chest &amp; triceps</span>
+        </div>
+        <p class="workout-note">Phase 1: 3 sets · 60s rest &nbsp;/&nbsp; Phase 2: 4 sets · 30–45s rest</p>
+        <table>
+          <thead><tr><th>Exercise</th><th>Muscles</th><th>Sets</th><th>Reps</th><th>Rest</th></tr></thead>
+          <tbody>
+            <tr><td>Wide push-ups<div class="td-sub">Outer chest, front delt</div></td><td><span class="tag">chest</span></td><td>4</td><td>12–15</td><td>60s</td></tr>
+            <tr><td>Diamond push-ups<div class="td-sub">Triceps, inner chest</div></td><td><span class="tag">triceps</span></td><td>4</td><td>10–12</td><td>60s</td></tr>
+            <tr><td>Decline push-ups<div class="td-sub">Upper chest</div></td><td><span class="tag">chest</span></td><td>3</td><td>12</td><td>60s</td></tr>
+            <tr><td>Tricep dips (chair)<div class="td-sub">Triceps long head</div></td><td><span class="tag">triceps</span></td><td>3</td><td>15</td><td>60s</td></tr>
+            <tr><td>Archer push-ups<div class="td-sub">Chest isolation</div></td><td><span class="tag">chest</span></td><td>3</td><td>8 each side</td><td>90s</td></tr>
+            <tr><td>Push-up bottom hold<div class="td-sub">Time under tension</div></td><td><span class="tag">chest</span></td><td>3</td><td>30s hold</td><td>60s</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="workout-block">
+        <div class="workout-label">
+          <span class="workout-day-tag">Tuesday</span>
+          <span class="workout-name">Back &amp; biceps</span>
+        </div>
+        <p class="workout-note">V-shape priority session — the most important workout of the week</p>
+        <table>
+          <thead><tr><th>Exercise</th><th>Muscles</th><th>Sets</th><th>Reps</th><th>Rest</th></tr></thead>
+          <tbody>
+            <tr><td>Wide-grip pull-ups<div class="td-sub">Lats, rear delt</div></td><td><span class="tag">lats</span></td><td>4</td><td>max reps</td><td>90s</td></tr>
+            <tr><td>Chin-ups<div class="td-sub">Lats, biceps</div></td><td><span class="tag">lats</span></td><td>3</td><td>max reps</td><td>90s</td></tr>
+            <tr><td>Inverted rows (table)<div class="td-sub">Mid-back, rhomboids</div></td><td><span class="tag">back</span></td><td>4</td><td>12–15</td><td>60s</td></tr>
+            <tr><td>Superman holds<div class="td-sub">Lower back, glutes</div></td><td><span class="tag">back</span></td><td>3</td><td>15 · 3s hold</td><td>45s</td></tr>
+            <tr><td>Scapular push-ups<div class="td-sub">Serratus, scapula</div></td><td><span class="tag">back</span></td><td>3</td><td>15</td><td>45s</td></tr>
+            <tr><td>Negative pull-ups<div class="td-sub">Eccentric lat loading</div></td><td><span class="tag">lats</span></td><td>3</td><td>5 · 5s lower</td><td>90s</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="workout-block">
+        <div class="workout-label">
+          <span class="workout-day-tag">Wednesday</span>
+          <span class="workout-name">Shoulders &amp; core</span>
+        </div>
+        <p class="workout-note">Capped shoulders complete the V-shape — treat this session seriously</p>
+        <table>
+          <thead><tr><th>Exercise</th><th>Muscles</th><th>Sets</th><th>Reps</th><th>Rest</th></tr></thead>
+          <tbody>
+            <tr><td>Pike push-ups<div class="td-sub">Front and side delt</div></td><td><span class="tag">shoulders</span></td><td>4</td><td>12</td><td>60s</td></tr>
+            <tr><td>Wall handstand holds<div class="td-sub">Full shoulder, core</div></td><td><span class="tag">shoulders</span></td><td>3</td><td>20–30s</td><td>90s</td></tr>
+            <tr><td>Hindu push-ups<div class="td-sub">Shoulders, triceps</div></td><td><span class="tag">shoulders</span></td><td>3</td><td>10</td><td>60s</td></tr>
+            <tr><td>Front + side planks<div class="td-sub">Deep core, obliques</div></td><td><span class="tag">core</span></td><td>3 each</td><td>45s hold</td><td>30s</td></tr>
+            <tr><td>Hollow body hold<div class="td-sub">Full anterior core</div></td><td><span class="tag">core</span></td><td>3</td><td>30s</td><td>45s</td></tr>
+            <tr><td>L-sit between chairs<div class="td-sub">Hip flexors, lower abs</div></td><td><span class="tag">core</span></td><td>4</td><td>max hold</td><td>60s</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="workout-block">
+        <div class="workout-label">
+          <span class="workout-day-tag">Thursday</span>
+          <span class="workout-name">Lower body</span>
+        </div>
+        <p class="workout-note">Strong legs trigger growth hormone — directly accelerates upper body results</p>
+        <table>
+          <thead><tr><th>Exercise</th><th>Muscles</th><th>Sets</th><th>Reps</th><th>Rest</th></tr></thead>
+          <tbody>
+            <tr><td>Bulgarian split squats<div class="td-sub">Quads, glutes, balance</div></td><td><span class="tag">quads</span></td><td>4</td><td>12 each leg</td><td>90s</td></tr>
+            <tr><td>Jump squats<div class="td-sub">Full leg, explosive</div></td><td><span class="tag">full leg</span></td><td>3</td><td>15</td><td>60s</td></tr>
+            <tr><td>Reverse lunges<div class="td-sub">Quads, hamstrings</div></td><td><span class="tag">quads</span></td><td>3</td><td>12 each leg</td><td>60s</td></tr>
+            <tr><td>Single-leg glute bridge<div class="td-sub">Glutes, hamstrings</div></td><td><span class="tag">glutes</span></td><td>3</td><td>15 each side</td><td>45s</td></tr>
+            <tr><td>Wall sit<div class="td-sub">Quad endurance</div></td><td><span class="tag">quads</span></td><td>3</td><td>60s hold</td><td>60s</td></tr>
+            <tr><td>Single-leg calf raises<div class="td-sub">Gastrocnemius, soleus</div></td><td><span class="tag">calves</span></td><td>4</td><td>20 each</td><td>30s</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="workout-block">
+        <div class="workout-label">
+          <span class="workout-day-tag">Friday</span>
+          <span class="workout-name">Full body circuit</span>
+        </div>
+        <p class="workout-note">3 rounds · No rest within a round · 90s between rounds</p>
+        <table>
+          <thead><tr><th>Exercise</th><th>Muscles</th><th>Rounds</th><th>Reps</th><th>Rest</th></tr></thead>
+          <tbody>
+            <tr><td>Burpees<div class="td-sub">Full body, cardio</div></td><td><span class="tag">full body</span></td><td>3</td><td>10</td><td>no rest</td></tr>
+            <tr><td>Mountain climbers<div class="td-sub">Core, hip flexors</div></td><td><span class="tag">core</span></td><td>3</td><td>30</td><td>no rest</td></tr>
+            <tr><td>V-sit crunches<div class="td-sub">Upper + lower abs</div></td><td><span class="tag">abs</span></td><td>3</td><td>20</td><td>no rest</td></tr>
+            <tr><td>Push-up to downward dog<div class="td-sub">Chest, shoulders</div></td><td><span class="tag">chest</span></td><td>3</td><td>10</td><td>no rest</td></tr>
+            <tr><td>Bicycle crunches<div class="td-sub">Obliques, abs</div></td><td><span class="tag">abs</span></td><td>3</td><td>20 each side</td><td>no rest</td></tr>
+            <tr><td>Dragon flags<div class="td-sub">Full core</div></td><td><span class="tag">core</span></td><td>3</td><td>8</td><td>90s after round</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- NUTRITION -->
+<section class="block block-dark" id="nutrition">
+  <div class="block-inner">
+    <span class="overline">Nutrition</span>
+    <h2 class="block-title">Fuel the machine.</h2>
+    <p class="block-body">Six meals a day. 200g of protein. A consistent caloric surplus. This is what mass gain requires — the training is only half the equation.</p>
+
+    <div class="macro-summary">
+      <div class="macro-cell"><span class="macro-num">3,000</span><span class="macro-lbl">Calories / day</span></div>
+      <div class="macro-cell"><span class="macro-num">200g</span><span class="macro-lbl">Protein</span></div>
+      <div class="macro-cell"><span class="macro-num">320g</span><span class="macro-lbl">Carbohydrates</span></div>
+      <div class="macro-cell"><span class="macro-num">85g</span><span class="macro-lbl">Fats</span></div>
+    </div>
+
+    <div class="meal-list">
+      <div class="meal-row">
+        <div class="meal-time">7:00 am</div>
+        <div>
+          <div class="meal-name">Power breakfast</div>
+          <div class="meal-foods">5 whole eggs scrambled · 2 slices whole-grain toast · 1 cup oatmeal with banana · Black coffee or green tea</div>
+        </div>
+        <div><span class="meal-cal">650 kcal</span><div class="meal-macros">50g protein · 60g carbs · 18g fat</div></div>
+      </div>
+      <div class="meal-row">
+        <div class="meal-time">10:00 am</div>
+        <div>
+          <div class="meal-name">Pre-workout fuel</div>
+          <div class="meal-foods">1 cup Greek yogurt (0%) · 1 cup mixed berries · 1 tbsp honey · Protein powder optional</div>
+        </div>
+        <div><span class="meal-cal">350 kcal</span><div class="meal-macros">30g protein · 45g carbs · 6g fat</div></div>
+      </div>
+      <div class="meal-row">
+        <div class="meal-time">1:00 pm</div>
+        <div>
+          <div class="meal-name">Post-workout recovery</div>
+          <div class="meal-foods">200g chicken breast or tuna · 1.5 cups brown rice or sweet potato · Large salad with olive oil · Half avocado</div>
+        </div>
+        <div><span class="meal-cal">750 kcal</span><div class="meal-macros">55g protein · 85g carbs · 20g fat</div></div>
+      </div>
+      <div class="meal-row">
+        <div class="meal-time">4:00 pm</div>
+        <div>
+          <div class="meal-name">Afternoon fuel</div>
+          <div class="meal-foods">Cottage cheese 200g · Apple or orange · 20 almonds or walnuts · Carrot sticks</div>
+        </div>
+        <div><span class="meal-cal">400 kcal</span><div class="meal-macros">35g protein · 40g carbs · 12g fat</div></div>
+      </div>
+      <div class="meal-row">
+        <div class="meal-time">7:00 pm</div>
+        <div>
+          <div class="meal-name">Dinner</div>
+          <div class="meal-foods">200g salmon, tuna steak, or lean beef · 1 cup quinoa or lentils · Steamed broccoli and spinach · Olive oil</div>
+        </div>
+        <div><span class="meal-cal">650 kcal</span><div class="meal-macros">45g protein · 65g carbs · 18g fat</div></div>
+      </div>
+      <div class="meal-row">
+        <div class="meal-time">9:30 pm</div>
+        <div>
+          <div class="meal-name">Nighttime casein</div>
+          <div class="meal-foods">200g cottage cheese or casein shake · Cinnamon · Handful of blueberries</div>
+        </div>
+        <div><span class="meal-cal">200 kcal</span><div class="meal-macros">25g protein · 15g carbs · 5g fat</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TIPS -->
+<section class="block block-light" id="tips">
+  <div class="block-inner">
+    <span class="overline">Trainer notes</span>
+    <h2 class="block-title" style="color:var(--gray-800)">What actually matters.</h2>
+
+    <div class="tips-grid">
+      <div class="tip-cell">
+        <div class="tip-title">The V-shape formula</div>
+        <div class="tip-body">Wide lats + capped shoulders + narrow waist. Pull-ups are your single best exercise. If you can't do them yet, start with <strong>negatives</strong> — jump up, lower slowly for 5 seconds. Volume beats intensity in the first four weeks. I've had clients gain a full shirt size in lats in 6 weeks with negatives alone.</div>
+      </div>
+      <div class="tip-cell">
+        <div class="tip-title">30 min vs 1 hour</div>
+        <div class="tip-body">On shorter days, cut sets to 3 and reduce rest to 45s. Keep every exercise exactly as listed — <strong>no skipping</strong>. On longer days, add a 3-minute push-up burnout or plank holds as a finisher at the end of every session.</div>
+      </div>
+      <div class="tip-cell">
+        <div class="tip-title">Sleep is the training</div>
+        <div class="tip-body">Muscle is built during sleep, not during training. <strong>8 hours minimum.</strong> Cold shower after training reduces inflammation. 10–15 min sun exposure daily supports testosterone. Cut alcohol completely — it directly suppresses protein synthesis.</div>
+      </div>
+      <div class="tip-cell">
+        <div class="tip-title">Pull-ups without a bar</div>
+        <div class="tip-body">Inverted rows under a sturdy table are 80% as effective for lat development. The more horizontal your body, the harder the pull. Nearly flat = equivalent to a full pull-up. A tree branch, playground bar, or staircase banister also works perfectly.</div>
+      </div>
+      <div class="tip-cell">
+        <div class="tip-title">Supplements worth using</div>
+        <div class="tip-body"><strong>Creatine monohydrate</strong> 5g/day — most studied supplement for strength and muscle volume. <strong>Vitamin D3</strong> 2000 IU. <strong>Magnesium glycinate</strong> before bed for sleep quality. Whey protein only if you genuinely can't hit 200g from food.</div>
+      </div>
+      <div class="tip-cell">
+        <div class="tip-title">Phase 2 mindset</div>
+        <div class="tip-body">Weeks 5–8, expect soreness to return around week 5. That is the signal it's working. <strong>Do not back off.</strong> Your body knows the movements now — harder variations will trigger growth that phase 1 couldn't. This is where the shape emerges.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-title">Actor Physique Program</div>
+    <div class="footer-sub">8 weeks · Bodyweight only · No equipment required</div>
+  </div>
+</footer>
+
+</body>
+</html>
